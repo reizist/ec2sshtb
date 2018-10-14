@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -39,14 +40,18 @@ type Config struct {
 	AwsCredentialProfile  string `yaml:"aws_credential_profile"`
 }
 
-func parseConfig() *Config {
-	config := &Config{}
-
+func userDir() string {
 	usr, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
 	}
-	buf, err := ioutil.ReadFile(usr.HomeDir + BaseDir + ConfigFileName)
+	return usr.HomeDir
+}
+
+func parseConfig() *Config {
+	config := &Config{}
+
+	buf, err := ioutil.ReadFile(userDir() + BaseDir + ConfigFileName)
 
 	if err != nil {
 		fmt.Println("not exists defaults.yml on " + BaseDir)
@@ -62,11 +67,7 @@ func parseConfig() *Config {
 }
 
 func parseHosts() map[string]string {
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-	buf, err := ioutil.ReadFile(usr.HomeDir + BaseDir + HostFileName)
+	buf, err := ioutil.ReadFile(userDir() + BaseDir + HostFileName)
 
 	if err != nil {
 		fmt.Println("not exists hosts.yml on " + BaseDir)
@@ -154,8 +155,27 @@ func getInstanceName(instance *ec2.Instance) (instanceName string) {
 	return
 }
 
-func listInstances(config Config) {
-	cli := awsEc2Client(config.AwsCredentialProfile, "ap-northeast-1")
+func saveToFile(config *Config) {
+	instances := listInstances(config.AwsCredentialProfile)
+	filePath := userDir() + BaseDir + HostFileName
+	hosts_file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0644)
+	defer hosts_file.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writer := bufio.NewWriter(hosts_file)
+
+	for _, v := range instances {
+		lineStr := fmt.Sprintf("%s (%s): %s\n", getInstanceName(v), *v.InstanceId, *v.PrivateIpAddress)
+		writer.WriteString(lineStr)
+	}
+	writer.Flush()
+}
+
+func listInstances(profile string) []*ec2.Instance {
+	cli := awsEc2Client(profile, "ap-northeast-1")
 	params := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
 			&ec2.Filter{
@@ -182,11 +202,12 @@ func listInstances(config Config) {
 			break
 		}
 	}
+	return instances
 }
 
 func sync() {
 	config := parseConfig()
-	listInstances(*config)
+	saveToFile(config)
 }
 
 func main() {
