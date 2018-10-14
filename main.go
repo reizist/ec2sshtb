@@ -158,7 +158,7 @@ func getInstanceName(instance *ec2.Instance) (instanceName string) {
 func saveToFile(config *Config) {
 	instances := listInstances(config.AwsCredentialProfile)
 	filePath := userDir() + BaseDir + HostFileName
-	hosts_file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0644)
+	hosts_file, err := os.OpenFile(filePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer hosts_file.Close()
 
 	if err != nil {
