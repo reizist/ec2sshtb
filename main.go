@@ -158,14 +158,14 @@ func getInstanceName(instance *ec2.Instance) (instanceName string) {
 func saveToFile(config *Config) {
 	instances := listInstances(config.AwsCredentialProfile)
 	filePath := userDir() + BaseDir + HostFileName
-	hosts_file, err := os.OpenFile(filePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	defer hosts_file.Close()
+	hostsFile, err := os.OpenFile(filePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	defer hostsFile.Close()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	writer := bufio.NewWriter(hosts_file)
+	writer := bufio.NewWriter(hostsFile)
 
 	for _, v := range instances {
 		lineStr := fmt.Sprintf("%s (%s): %s\n", getInstanceName(v), *v.InstanceId, *v.PrivateIpAddress)
