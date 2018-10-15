@@ -100,8 +100,7 @@ func runCmdStr(cmdstr string) error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		// TODO: I wonder why it can not execute
-		// err = cmd.Run()
+		err = cmd.Run()
 	}
 	if err != nil {
 		return err
@@ -126,7 +125,7 @@ func ssh() {
 	}
 	selectedHost := selectedHosts[0]
 	fmt.Printf("Connecting to '%s' with '%s' via rcloud bastion with '%s'.\n", selectedHost, config.HostUser, config.BastionUser)
-	cmdstr := fmt.Sprintf("ssh %s@%s -p %d -o ProxyCommand=\\'ssh %s@%s -p %d -i %s -W %%h:%%p\\'", config.HostUser, selectedHost, config.HostPort, config.BastionUser, config.BastionHost, config.BastionPort, config.BastionPrivateKeyPath)
+	cmdstr := fmt.Sprintf("ssh %s@%s -p %d -o ProxyCommand='ssh %s@%s -p %d -i %s -W %%h:%%p'", config.HostUser, selectedHost, config.HostPort, config.BastionUser, config.BastionHost, config.BastionPort, config.BastionPrivateKeyPath)
 	runCmdStr(cmdstr)
 }
 
