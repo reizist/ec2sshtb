@@ -107,7 +107,6 @@ func parseHosts() map[string]string {
 
 func runCmdStr(cmdstr string) error {
 	c, err := shellwords.Parse(cmdstr)
-	fmt.Println(c)
 
 	if err != nil {
 		return err
