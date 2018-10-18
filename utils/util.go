@@ -16,7 +16,7 @@ import (
 )
 
 // BaseDir is the directory path of config, hosts file located
-const BaseDir = "/.bastion_ec2ssh/"
+const BaseDir = "/.ec2sshtb/"
 
 // ConfigFileName is the file name of the config
 const ConfigFileName = "default.yml"
