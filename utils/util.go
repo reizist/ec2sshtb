@@ -47,11 +47,12 @@ func SSH() {
 
 	peco, _ := finder.New("peco")
 
+	items := finder.Items{}
 	for k, v := range hosts {
 		keys = append(keys, k)
-		peco.Add(k, v)
+		items.Add(k, v)
 	}
-	selectedHosts, err := peco.Select()
+	selectedHosts, err := peco.Select(items)
 	if err != nil {
 		panic(err)
 	}
